@@ -19,6 +19,8 @@ def check_image_hashes(directory):
         md5_hashes = [] 
         totalimages = 0
         totaloutliers = 0
+        tolerance1 = 0
+        tolerance2 = 0
         avghamming = 0.0
         # Iterate over all subdirectories in the directory
         for subdir in os.scandir(directory):
@@ -49,7 +51,7 @@ def check_image_hashes(directory):
                 # The number of outliers is the total number of images minus the count of the most common hash
                 outliers = len(hashes) - common_count
                 if outliers > 0:
-                    print(f'There are {outliers} outliers in {subdir.path}.')
+                    #print(f'There are {outliers} outliers in {subdir.path}.')
                     # Calculate the Hamming distance between the most common hash and each of the other hashes
                     distances = [common_hash - hash for hash in hashes if hash != common_hash]
                     all_distances.extend(distances)  # Add the distances to the list of all distances
@@ -58,8 +60,12 @@ def check_image_hashes(directory):
                             distance = common_hash - hash
                             totaloutliers = totaloutliers + 1
                             avghamming = avghamming + distance
-                            print(f'Hamming distance between common hash and outlier: {distance}')
-                            print(f'Common hash {common_hash}, outlier hash {hash}')
+                            if distance > 1:
+                                tolerance1 = tolerance1 + 1
+                            if distance > 2:
+                                tolerance2 = tolerance2 + 1
+                            #print(f'Hamming distance between common hash and outlier: {distance}')
+                            #print(f'Common hash {common_hash}, outlier hash {hash}')
 
         # Create a histogram of all the Hamming distances
         plt.hist(all_distances, bins='auto')
@@ -73,7 +79,8 @@ def check_image_hashes(directory):
         end_time = time.time()
         print(f'Time taken by {method_name}: {end_time - start_time} seconds')
         print(f'Total images {totalimages} and total outliers {totaloutliers}, average hamming = {avghamming/totaloutliers}')
+        print(f'Tolerance 1 {tolerance1} and tolerance2 {tolerance2}')
 
 
 # Use the function on your directory
-check_image_hashes('./')
+check_image_hashes('./deliberate')
