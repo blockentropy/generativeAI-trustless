@@ -40,19 +40,49 @@ def compute_statistics(distances):
     
     return mean_distance, median_distance, std_dev_distance
 
+
+# Test
+# Iterate over all directories from 0 to 100
+totaldiff = 0
+totaldiff1 = 0
+totalhashes = 0
+totalim = 0
+for i in range(1000):  # range(101) will give numbers from 0 to 100
+    dir_path = f'./{i}'  # create the directory path
+    print(f'Processing directory {i}')
+    hashes = []
+    for file in os.scandir(dir_path):
+        if file.is_file() and file.name.endswith(('.png', '.jpg', '.jpeg')):
+            with Image.open(file.path) as img:
+                # Compute the perceptual hash of the image
+                hash = imagehash.average_hash(img)
+                hash_str = str(hash)
+                hashes.append(hash_str)
+
+    distances, equal_count, hamming_one_count, hamming_two_count = compute_distances(hashes)
+    totaldiff = totaldiff + hamming_two_count
+    totaldiff1 = totaldiff1 + hamming_one_count
+    totalhashes = totalhashes + len(distances)
+    totalim = totalim + len(hashes)
+    mean_distance, median_distance, std_dev_distance = compute_statistics(distances)
+    print(f"Mean: {mean_distance}, Median: {median_distance}, Std Dev: {std_dev_distance}")
+    print(f"Equal count: {equal_count}, Hamming distance of 1 count: {hamming_one_count}, hamming 2 count: {hamming_two_count}")
+    print(f'Num of comparisons {len(distances)} number of hashes {len(hashes)}')
+
+print(f'Num of total comparisons {totalhashes} total images {totalim} and one hash away {totaldiff1} twohash away {totaldiff}')
 # Test
 # Iterate over all files in the subdirectory
-hashes = []
-for file in os.scandir('./0'):
-    if file.is_file() and file.name.endswith(('.png', '.jpg', '.jpeg')):
-        with Image.open(file.path) as img:
-            # Compute the perceptual hash of the image
-            hash = imagehash.average_hash(img)
-            hash_str = str(hash)
-            hashes.append(hash_str)
+#hashes = []
+#for file in os.scandir('./0'):
+#    if file.is_file() and file.name.endswith(('.png', '.jpg', '.jpeg')):
+#        with Image.open(file.path) as img:
+#            # Compute the perceptual hash of the image
+#            hash = imagehash.average_hash(img)
+#            hash_str = str(hash)
+#            hashes.append(hash_str)
 
-distances, equal_count, hamming_one_count, hamming_two_count = compute_distances(hashes)
-mean_distance, median_distance, std_dev_distance = compute_statistics(distances)
-print(f"Mean: {mean_distance}, Median: {median_distance}, Std Dev: {std_dev_distance}")
-print(f"Equal count: {equal_count}, Hamming distance of 1 count: {hamming_one_count}, hamming 2 count: {hamming_two_count}")
-print(f'Num of comparisons {len(distances)} number of hashes {len(hashes)}')
+#distances, equal_count, hamming_one_count, hamming_two_count = compute_distances(hashes)
+#mean_distance, median_distance, std_dev_distance = compute_statistics(distances)
+#print(f"Mean: {mean_distance}, Median: {median_distance}, Std Dev: {std_dev_distance}")
+#print(f"Equal count: {equal_count}, Hamming distance of 1 count: {hamming_one_count}, hamming 2 count: {hamming_two_count}")
+#print(f'Num of comparisons {len(distances)} number of hashes {len(hashes)}')
